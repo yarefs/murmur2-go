@@ -1,4 +1,6 @@
-# go-murmur
+# murmur2-go
+
+This is a fork of [go-murmur](https://github.com/aviddiviner/go-murmur/) with a go module specified and nothing much else.
 
 Go programming language implementation of MurmurHash2, based on the work by [Austin Appleby](https://code.google.com/p/smhasher/).
 
