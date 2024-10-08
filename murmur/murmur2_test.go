@@ -1,55 +1,48 @@
 package murmur
 
 import (
-	"fmt"
-	"hash"
+	"github.com/stretchr/testify/assert"
 	"hash/fnv"
 	"testing"
 )
 
-func printv(v uint32) {
-	fmt.Printf("%#v %d\n", v, v)
+func TestHashReuse(t *testing.T) {
+	hash := New32(123)
+
+	for i := 0; i < 10; i += 1 {
+		_, err := hash.Write([]byte("zztop"))
+		assert.NoError(t, err)
+	}
+
+	s := hash.Sum32()
+	assert.Equal(t, s, hash.Sum32())
+
+	// once we reset the hash
+
+	hash.Reset()
+
+	// write some stuff
+	_, err := hash.Write([]byte("foo"))
+	assert.NoError(t, err)
+
+	first := hash.Sum32()
+
+	// reset it again
+	hash.Reset()
+	_, err = hash.Write([]byte("foo"))
+	assert.NoError(t, err)
+
+	second := hash.Sum32()
+
+	// then the same result
+	assert.Equal(t, first, second)
 }
 
-// Sorry, no real tests here. Just some manual checks that things look right.
-// Feel free to submit a pull request with some better testing :)
-
-func TestStuff(t *testing.T) {
-	printv(MurmurHash2([]byte("foo"), 123))       // == 1412061192
-	printv(MurmurHash2([]byte("zztop"), 123))     // == 1878194508
-	printv(MurmurHash2([]byte("foobarbaz"), 234)) // == 1777016281
-	printv(MurmurHash2([]byte("blam"), 777))      // == 1668928339
-
-	println("-----------------")
-
-	var s uint32
-	var h hash.Hash32
-
-	h = New32(123)
-	h.Write([]byte("zztop"))
-	h.Write([]byte("zztop"))
-	h.Write([]byte("zztop"))
-	h.Write([]byte("zztop!"))
-
-	s = h.Sum32()
-	printv(s)
-
-	s = h.Sum32()
-	printv(s) // should be the same as above
-
-	println("-----------------")
-
-	h.Reset()
-	h.Write([]byte("foo"))
-	s = h.Sum32()
-	printv(s)
-
-	h.Reset()
-	h.Write([]byte("foo"))
-	s = h.Sum32()
-	printv(s) // should be the same as above
-
-	println("-----------------")
+func TestFixedHashes(t *testing.T) {
+	assert.Equal(t, uint32(1412061192), MurmurHash2([]byte("foo"), 123))
+	assert.Equal(t, uint32(1878194508), MurmurHash2([]byte("zztop"), 123))
+	assert.Equal(t, uint32(1777016281), MurmurHash2([]byte("foobarbaz"), 234))
+	assert.Equal(t, uint32(1668928339), MurmurHash2([]byte("blam"), 777))
 }
 
 // -----------------------------------------------------------------------------
