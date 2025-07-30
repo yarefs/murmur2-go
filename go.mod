@@ -1,4 +1,4 @@
-module github.com/yarefs/murmur2-go
+module github.com/saido-labs/murmur2-go
 
 go 1.22
 
